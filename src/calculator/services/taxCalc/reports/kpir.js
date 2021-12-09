@@ -278,7 +278,7 @@ function joinSumaries(summaryA, summaryB) {
 function kpir(calculator) {
     // const counters = new Counters(calculator.year);
     const filename = `${calculator.getFilename()}.pdf`;
-    const pdf = new JsPDF('p'); // OK, created
+    const pdf = new JsPDF.jsPDF('p'); // OK, created
     
     pdf.text(`Podatkowa Ksiega Przychodow i Rozchodow, ${calculator.year}r.`, 14, 15);
     pdf.setFont('helvetica');
