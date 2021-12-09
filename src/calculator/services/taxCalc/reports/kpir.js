@@ -44,7 +44,7 @@ function addKpirPage(pdf, year, month, pageNo, data, pageSum, monthSum, yearSum,
         tableWidth: '100%',
         styles: {
             cellPadding: 0.3,
-            fontSize: 4,
+            fontSize: 8,
             lineWidth: 0.1,
             lineColor: [66, 66, 66]
         },
@@ -52,14 +52,14 @@ function addKpirPage(pdf, year, month, pageNo, data, pageSum, monthSum, yearSum,
         headStyles: {
             fillColor: [255, 255, 255],
             textColor: [0, 0, 0],
-            fontSize: 4,
+            fontSize: 8,
             lineWidth: 0.1,
             lineColor: [66, 66, 66]
         },
         footStyles: {
             fillColor: [255, 255, 255],
             textColor: [0, 0, 0],
-            fontSize: 4,
+            fontSize: 8,
             lineWidth: 0.1,
             lineColor: [66, 66, 66]
         },
@@ -282,7 +282,7 @@ function kpir(calculator) {
     
     pdf.text(`Podatkowa Ksiega Przychodow i Rozchodow, ${calculator.year}r.`, 14, 15);
     pdf.setFont('helvetica');
-    pdf.setFontSize(8);
+    pdf.setFontSize(20);
 
     const months = [
         {name: 'styczen', no: '01'},
