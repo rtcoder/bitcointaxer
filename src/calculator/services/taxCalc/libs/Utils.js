@@ -27,19 +27,6 @@ const CONFIG = {
     priceServerAddress: 'https://newio01.priceserver.bitcointaxer.org:8088'
 };
 const assetsConfig = {
-    XLM: {
-        weight: 3,
-        color: '#9e9e9e',
-        type: 'cryptocurrency',
-        name: 'stellar lumens',
-        iso: 'XLM',
-        addressFilter: /(G[A-Z0-9]{55})/,
-        blockchain: 'Stellar lumens blockchain',
-        blockchainAddressPrelink: 'https://stellarchain.io/address/',
-        blockchainTxPrelink: 'https://stellarchain.io/tx/',
-        priceHistoryAdapter: ['coinmarketcap'],
-        decimalPlaces: 8
-    },
     LTC: {
         weight: 1,
         color: '#9e9e9e',
