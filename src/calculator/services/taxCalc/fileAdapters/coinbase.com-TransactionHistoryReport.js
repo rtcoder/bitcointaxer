@@ -2,7 +2,7 @@
 const domain = 'coinbase.com';
 const adapter = 'transaction_history';
 const location = 'coinbase.com';
-const DATA_FROM_LINE = 8;
+const DATA_FROM_LINE = 9;
 const parseConfig = {
     type: 'csv',
     delimiter: ',',
@@ -50,7 +50,7 @@ function readInfoFromNotes(notes) {
         });
     }
     const wallet = notes.indexOf('Wallet') !== -1;
-    const addressFound = notes.match(/[A-Z|a-z|0-9]{34,64}$/);
+    const addressFound = notes.match(/[A-Z|a-z|0-9]{34,64}/);
     return {
         foundValues: foundValues,
         wallet: wallet,
@@ -66,9 +66,12 @@ function getOperations(file) {
     let i = 0;
     const data_transfers = [];
     const data_trades = [];
-    const reportBaseCurrency = String(data[7][6]).substr(0, 3);
+    // const reportBaseCurrency = String(data[7][6]).substr(0, 3);
 
     // sort record types
+    // 0            1                   2		3                       4                       5                           6           7                           8       9
+    // Timestamp,   Transaction Type,   Asset,  Quantity Transacted,    Spot Price Currency,    Spot Price at Transaction,  Subtotal,   Total (inclusive of fees),  Fees,   Notes
+
     for (i = DATA_FROM_LINE; i < data.length; i += 1) {
         record = {};
         record.rawCSVLine = data[i];
@@ -80,18 +83,25 @@ function getOperations(file) {
         record.currency = record.rawCSVLine[2];
         record.asset = record.currency;
         record.amount = parseFloat(record.rawCSVLine[3]);
-        record.baseCurrency = reportBaseCurrency;
-        record.baseCurrencyPrice = parseFloat(record.rawCSVLine[4]);
-        record.baseCurrencyValuationSubtotal = parseFloat(record.rawCSVLine[5]);
-        record.baseCurrencyValuationWithFee = parseFloat(record.rawCSVLine[6]);
-        record.fees = parseFloat(record.rawCSVLine[7]);
-        record.notes = record.rawCSVLine[8];
+        record.baseCurrency = record.rawCSVLine[4];
+        record.baseCurrencyPrice = parseFloat(record.rawCSVLine[5]);
+        record.baseCurrencyValuationSubtotal = parseFloat(record.rawCSVLine[6]);
+        record.baseCurrencyValuationWithFee = parseFloat(record.rawCSVLine[7]);
+        record.fees = parseFloat(record.rawCSVLine[8]);
+        record.notes = record.rawCSVLine[9];
         record.loc = location;
         record.file = file;
         record.line = i;
         record.infoFromNotes = readInfoFromNotes(record.notes);
+        // Log infoFromNotes for every record read from CSV
+        // console.log('CSV line: ', record.rawCSVLine);
+        // console.log('CSV line no: ', record.rawCSVLineNo, ' baseCurrency: ', record.baseCurrency, ' baseCurrencyPrice: ', record.baseCurrencyPrice, ' ValuationSubtotal: ', record.baseCurrencyValuationSubtotal, ' ValuationWithFee: ', record.baseCurrencyValuationWithFee);
+
+        // console.log('CSV line no: ', record.rawCSVLineNo, ' Info in notes: ', record.notes);
+        // console.log('CSV line no: ', record.rawCSVLineNo, ' Info from notes: ', record.infoFromNotes);
 
         switch (record.type) {
+        case 'Coinbase Earn':
         case 'Receive':
         case 'Send':
             data_transfers.push(record);    
@@ -128,6 +138,21 @@ function getOperations(file) {
             record.transferType = 'deposit';
             from = {
                 loc: 'wallet',
+                amount: record.amount,
+                currency: record.currency,
+                asset: record.currency,
+                address: record.infoFromNotes && record.infoFromNotes.address
+            };
+            to = {
+                loc: location,
+                amount: record.amount,
+                currency: record.currency,
+                asset: record.currency
+            }; 
+        } else if (record.amount > 0 && record.type === 'Coinbase Earn') {
+            record.transferType = 'deposit';
+            from = {
+                loc: 'Coinbase Earn',
                 amount: record.amount,
                 currency: record.currency,
                 asset: record.currency,
@@ -179,8 +204,10 @@ function getOperations(file) {
                 continue;
             }
             if (infoFromNotes.foundValues.length !== 2) {
-                console.error(domain, adapter, 'Found values count in notes is not equal 2!', recordA);
-                continue;
+               console.error(domain, adapter, 'Found values count in notes is not equal 2!', recordA);
+               console.error(domain, adapter, 'CSV line no: ', record.rawCSVLineNo, ' Info in notes: ', record.notes);
+               console.error(domain, adapter, 'Found values count in notes: ', recordA.infoFromNotes);
+               continue;
             }
             if (infoFromNotes.foundValues[0].asset !== recordA.currency) {
                 console.error(domain, adapter, 'Asset "from" not match asset in notes!', infoFromNotes.foundValues[0].asset, recordA.currency, recordA, infoFromNotes);
@@ -212,6 +239,8 @@ function getOperations(file) {
             }
             if (infoFromNotes.foundValues.length !== 2) {
                 console.error(domain, adapter, 'Found values count in notes is not equal 2!', recordA);
+                console.error(domain, adapter, 'CSV line no: ', record.rawCSVLineNo, ' Info in notes: ', record.notes);
+                console.error(domain, adapter, 'Found values count in notes: ', recordA.infoFromNotes);
                 continue;
             }
             if (infoFromNotes.foundValues[0].asset !== recordA.currency) {
