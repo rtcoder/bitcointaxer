@@ -25,10 +25,10 @@ function match(file) {
     return false;
 }
 function bitbayDate2ISODate(bbDate) {
-    const day = bbDate.substr(0, 2),
-        month = bbDate.substr(3, 2),
+    const day = bbDate.substr(8, 2),
+        month = bbDate.substr(5, 2),
         time = bbDate.substr(11, 8),
-        year = bbDate.substr(6, 4);
+        year = bbDate.substr(0, 4);
     return `${year}-${month}-${day} ${time}`;
 }
 
